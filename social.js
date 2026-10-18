@@ -157,8 +157,9 @@
         await renderProfile();
       } catch (error) {
         let errorMessage = friendlyError(error);
-        if (error?.context instanceof Response) {
-          const responseBody = await error.context.clone().json();
+        const response = error?.context;
+        if (typeof response?.clone === "function") {
+          const responseBody = await response.clone().json().catch(() => null);
           if (typeof responseBody?.error === "string") errorMessage = responseBody.error;
         }
         showMessage(message, errorMessage, true);

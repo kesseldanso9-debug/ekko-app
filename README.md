@@ -11,8 +11,9 @@ The publishable/anon key is intended for the browser; never put the
 `service_role` key in this app.
 
 In **Authentication → URL Configuration**, set the Site URL and redirect URL
-to `https://kesseldanso9-debug.github.io/ekko-app/`. Keep email confirmation
-enabled, and set the minimum password length to 12.
+to `https://kesseldanso9-debug.github.io/ekko-app/`. Email confirmation is
+currently disabled so users can sign in immediately without a custom SMTP
+provider. Set the minimum password length to 12.
 
 Configure a transactional email provider under **Authentication → SMTP
 Settings** so people can receive confirmation and password-reset emails.
@@ -68,9 +69,9 @@ data. Never replace it with the `service_role` key.
 The app is published at
 [`https://kesseldanso9-debug.github.io/ekko-app/`](https://kesseldanso9-debug.github.io/ekko-app/).
 GitHub Pages deploys the `main` branch root. People create an account with
-email, username, and password, confirm their email, then sign in with their
-username or email and password. Password reset links are sent to the account
-email.
+email, username, and password, then sign in immediately with their username or
+email and password. Password reset links still require email delivery;
+configure custom SMTP for reliable delivery.
 
 Profile photos, profile videos, and wallpaper photos/videos are private
 Supabase Storage objects. Users can choose whether these are visible to all

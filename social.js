@@ -99,7 +99,7 @@
       <label>Username<input name="username" type="text" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="username" required></label>
       <label>Password<input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
       <button class="primary" type="submit">Create account</button><p class="profile-message" id="signupMessage" aria-live="polite"></p>
-    </form></section></div><p class="local-note">Use a unique username (3–24 letters, numbers, or underscores) and a password with at least 12 characters. A confirmation email is required before signing in.</p>`;
+    </form></section></div><p class="local-note">Use a unique username (3–24 letters, numbers, or underscores) and a password with at least 12 characters. You can sign in as soon as your account is created.</p>`;
 
   const bindAuthForms = (client) => {
     document.getElementById("ekkoSignup").addEventListener("submit", async event => {
@@ -119,7 +119,7 @@
         form.reset();
         showMessage(message, data.session
           ? "Account created. You're signed in."
-          : "Account created. Check your email to confirm it, then sign in with your username.");
+          : "Account created. Sign in with your username or email.");
         if (data.session) await renderProfile();
       } catch (error) {
         showMessage(message, friendlyError(error), true);

@@ -156,7 +156,12 @@
         form.reset();
         await renderProfile();
       } catch (error) {
-        showMessage(message, friendlyError(error), true);
+        let errorMessage = friendlyError(error);
+        if (error?.context instanceof Response) {
+          const responseBody = await error.context.clone().json();
+          if (typeof responseBody?.error === "string") errorMessage = responseBody.error;
+        }
+        showMessage(message, errorMessage, true);
       }
     });
 

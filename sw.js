@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ekko-v3';
+const CACHE_NAME = 'ekko-v4';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './social.js', './supabase-config.js'];
 
 self.addEventListener('install', (event) => {

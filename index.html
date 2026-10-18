@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ekko – talk to your past and future self</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Ekko">
+<style>
+:root{color-scheme:dark;--bg:#000;--surface:#0a0a0a;--raised:#111;--ink:#f5f5f5;--muted:#777;--line:#252525;--white:#fff;--black:#000;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "Bricolage Grotesque",system-ui,sans-serif}
+main{max-width:820px;min-height:100vh;margin:0 auto;padding:25px 24px calc(112px + env(safe-area-inset-bottom,0px))}
+.app-header{display:flex;align-items:center;gap:12px;margin:0 0 30px}
+.brand-mark{display:grid;place-items:center;width:48px;height:48px;flex:0 0 48px}
+.brand-mark svg{display:block;width:48px;height:48px}
+h1{font-size:1.55rem;font-weight:800;margin:0;letter-spacing:-.04em}
+.sub{color:var(--muted);margin:0 0 20px}
+.page-intro{margin:0 0 24px}
+.page-intro h2{font-size:2rem;line-height:1.15;letter-spacing:-.045em;margin:2px 0 8px}
+.page-intro p{color:var(--muted);margin:0}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.13em;color:#8a8a8a;font-weight:800}
+nav{position:fixed;z-index:10;left:50%;bottom:0;transform:translateX(-50%);display:grid;grid-template-columns:repeat(5,1fr);width:min(100%,820px);padding:9px 14px calc(9px + env(safe-area-inset-bottom,0px));background:rgba(8,8,8,.94);border-top:1px solid var(--line);backdrop-filter:blur(18px)}
+nav button{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:5px 2px;background:none;border:0;border-radius:12px;color:#777;font:600 11px/1.2 "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+nav button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button[aria-selected=true]{color:#fff}
+nav button[aria-selected=true] svg{stroke-width:2.3}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:8px 0 22px}
+.moods button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:12px 2px;font:inherit;font-size:13px;cursor:pointer}
+.moods button span{display:block;font-size:22px}
+.moods button[aria-pressed=true]{border-color:#fff;background:#fff;color:#000}
+label,.lbl{font-weight:600;display:block;margin:14px 0 6px}
+textarea,input[type=text],input[type=date],input[type=search],input[type=email],input[type=password],select{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px}
+textarea{min-height:145px;resize:vertical}
+.primary{background:var(--white);color:var(--black);border:0;border-radius:12px;padding:12px 20px;font:700 15px/1.2 "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer;margin-top:14px}
+.ghost{background:none;border:0;color:var(--muted);font:inherit;text-decoration:underline;cursor:pointer;padding:4px}
+.install-button{display:inline-flex;align-items:center;justify-content:center;padding:9px 12px;border:1px solid #444;border-radius:12px;background:#111;color:#fff;font:600 13px/1.2 "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.install-button[hidden]{display:none}
+.friend-form{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 12px}
+.friend-form input{flex:1 1 180px;min-width:0}
+.friend-form button{flex:0 0 auto}
+.friend-empty{padding:18px 0 8px;color:var(--muted)}
+.talk{display:flex;flex-direction:column;gap:10px;margin:22px 0}
+.bubble{max-width:86%;padding:12px 14px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere}
+.bubble small{display:block;font-weight:600;opacity:.75;margin-bottom:2px;font-size:12.5px}
+.me{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:4px}
+.past{align-self:flex-start;background:#1c1c1c;color:#fff;border-bottom-left-radius:4px}
+.empty{color:var(--muted);padding:24px 0}
+.item,.panel-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.item .meta{color:var(--muted);font-size:13.5px;margin-bottom:4px}
+.locked{border-style:dashed}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+button{font-family:inherit}
+.friends-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:20px 0}
+.friends-head h2,.section-title{margin:0;font-size:1.35rem;letter-spacing:-.03em}
+.stories{display:flex;gap:14px;overflow-x:auto;padding:4px 0 18px}
+.story{flex:0 0 66px;text-align:center;color:var(--muted);font-size:12px}
+.story-ring{width:62px;height:62px;border-radius:50%;padding:2px;margin:0 auto 5px;background:#777}
+.story-ring span{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:#111;border:2px solid var(--bg);font-size:24px}
+.story.add .story-ring{background:#444}
+.upload-card,.chat-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;margin:6px 0 24px}
+.upload-drop{display:grid;place-items:center;text-align:center;min-height:145px;border:1px dashed #454545;border-radius:14px;padding:20px;background:#080808}
+.upload-drop strong{font-size:18px}
+.upload-drop p,.privacy-note{color:var(--muted);font-size:13px;margin:5px 0}
+.upload-button,.send-button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:12px;padding:11px 17px;background:#fff;color:#000;font:700 15px/1.2 "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.upload-button{margin-top:12px}
+.video-feed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.video-card{overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.video-card video{display:block;width:100%;max-height:330px;aspect-ratio:9/12;object-fit:cover;background:#080808}
+.video-caption{padding:10px 12px;font-size:13px;color:var(--muted)}
+.chat-layout{display:grid;grid-template-columns:180px minmax(0,1fr);min-height:350px;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#080808}
+.friend-list{border-right:1px solid var(--line);padding:10px}
+.friend-choice{display:flex;width:100%;align-items:center;gap:9px;padding:10px 7px;border:0;border-radius:12px;background:none;color:var(--ink);text-align:left;cursor:pointer}
+.friend-choice[aria-pressed=true]{background:#202020}
+.friend-avatar{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:50%;background:#292929;font-size:20px}
+.friend-choice small{display:block;color:var(--muted);font-size:11px}
+.chat-window{display:flex;min-width:0;flex-direction:column}
+.chat-title{padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700}
+.chat-messages{display:flex;flex:1;flex-direction:column;gap:9px;max-height:280px;overflow-y:auto;padding:14px}
+.chat-bubble{max-width:82%;padding:9px 12px;border-radius:15px;background:#202020;overflow-wrap:anywhere}
+.chat-bubble.mine{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:4px}
+.chat-time{display:block;margin-top:2px;font-size:10px;opacity:.7}
+.chat-compose{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.chat-compose input{min-width:0;flex:1}
+.send-button{padding:9px 13px}
+.local-note{color:var(--muted);font-size:12px;margin:10px 0 0}
+.group-grid,.library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.group-card,.resource-card{display:flex;flex-direction:column;min-height:190px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:17px}
+.card-icon{display:grid;place-items:center;width:42px;height:42px;margin-bottom:13px;border-radius:13px;background:#fff;color:#000;font-size:21px}
+.card-category{color:#888;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.group-card h3,.resource-card h3{font-size:17px;line-height:1.3;margin:5px 0}
+.group-card p,.resource-card p{color:#999;font-size:13px;margin:0 0 14px}
+.group-card .primary,.resource-card .primary{align-self:flex-start;margin-top:auto;padding:9px 14px;font-size:13px}
+.join-button.joined{background:#222;color:#fff;border:1px solid #444}
+.group-count{margin-top:auto;color:#888;font-size:12px}
+.library-search{margin:18px 0}
+.library-search input{background:#0a0a0a}
+.filter-row{display:flex;gap:8px;overflow-x:auto;margin:0 0 16px}
+.filter-chip{white-space:nowrap;padding:8px 13px;border:1px solid var(--line);border-radius:999px;background:transparent;color:#aaa;cursor:pointer}
+.filter-chip[aria-pressed=true]{background:#fff;color:#000;border-color:#fff}
+.resource-card{min-height:210px}
+.resource-card[hidden]{display:none}
+.notes-hero{padding:22px;margin-bottom:16px;border:1px solid #282828;border-radius:20px;background:linear-gradient(145deg,#171717,#080808 72%)}
+.notes-hero h2{font-size:1.7rem;line-height:1.15;margin:5px 0 8px;letter-spacing:-.04em}
+.notes-hero p{margin:0;color:#aaa}
+.note-composer,.note-output{padding:18px;margin:14px 0;background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.note-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-label{display:block;margin:0 0 6px;color:#aaa;font-size:12px;font-weight:700}
+.transcript-label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px}
+.record-button{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid #444;border-radius:999px;background:#111;color:#fff;font:600 13px/1.2 "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.record-button:disabled{opacity:.55;cursor:not-allowed}
+.record-dot{width:9px;height:9px;border-radius:50%;background:#fff}
+.record-button[aria-pressed=true] .record-dot{background:#f44;box-shadow:0 0 12px #f44;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.record-status{min-height:22px;margin:8px 0;color:#999;font-size:12px}
+.note-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+.secondary-button{padding:10px 14px;border:1px solid #444;border-radius:12px;background:#111;color:#fff;font:600 14px/1.2 "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.note-output{background:#0c0c0c}
+.note-output h3{margin:0 0 12px;font-size:16px}
+.note-output h4{margin:16px 0 5px;font-size:13px;color:#aaa}
+.note-output p,.note-output ul{margin:5px 0;color:#ddd}
+.note-output ul{padding-left:20px}
+.note-history{margin-top:26px}
+.note-history h3{font-size:17px}
+.note-history-card{padding:14px 0;border-bottom:1px solid var(--line)}
+.note-history-card h4{margin:0;font-size:15px}
+.note-history-card p{margin:4px 0;color:#999;font-size:13px}
+.note-hex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:540px;margin:16px 0 30px}
+.friend-hex{display:grid;place-items:center;align-content:center;gap:5px;width:100%;aspect-ratio:1/1;min-width:0;padding:8px;clip-path:polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%);background:#191919;border:0;color:var(--ink);font:inherit;text-align:center;cursor:pointer;transition:background .16s ease,transform .16s ease}
+.friend-hex:hover,.friend-hex:focus-visible{background:#303030;transform:scale(1.035)}
+.friend-hex .friend-avatar{width:44px;height:44px;flex:0 0 44px;background:#303030;border-radius:50%;font-size:23px}
+.friend-hex strong{font-size:13px}
+.friend-hex span:last-child{color:#999;font-size:11px}
+.profile-auth,.profile-card{padding:18px;margin:14px 0;background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.profile-auth h2,.profile-card h2{margin:0 0 8px;font-size:1.25rem}
+.profile-auth p,.profile-card p{color:var(--muted);margin:0 0 12px}
+.profile-form{display:grid;gap:10px;max-width:440px}
+.profile-form label{margin:0}
+.profile-form button{justify-self:start}
+.profile-message{min-height:1.5em;color:#bbb;font-size:13px}
+.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.profile-media{display:block;width:100%;max-height:360px;object-fit:cover;border-radius:14px;background:#111}
+.profile-background{height:210px;background-position:center;background-size:cover;border-radius:14px;overflow:hidden;background:#111}
+.profile-background .profile-media{display:block;width:100%;height:100%;max-height:none;object-fit:cover;border-radius:0}
+.profile-person{display:flex;align-items:center;gap:12px;margin:12px 0}
+.profile-person .profile-media{width:72px;height:72px;border-radius:50%}
+.profile-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.profile-actions input[type=file]{max-width:100%;color:var(--muted)}
+.profile-list{display:grid;gap:8px}
+.profile-list-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:12px}
+.profile-list-item small{display:block;color:var(--muted)}
+.profile-error{color:#ff8b8b}
+@media(max-width:560px){main{padding:18px 16px calc(104px + env(safe-area-inset-bottom,0px))}.app-header{margin-bottom:24px}.page-intro h2{font-size:1.7rem}nav{padding-left:4px;padding-right:4px}nav button{font-size:10px;gap:3px}nav button svg{width:20px;height:20px}.chat-layout{grid-template-columns:112px minmax(0,1fr)}.friend-list{padding:6px}.friend-choice{gap:6px;padding:8px 3px;font-size:13px}.friend-avatar{width:31px;height:31px;flex-basis:31px}.video-feed,.group-grid,.library-grid{grid-template-columns:1fr 1fr}.group-card,.resource-card{padding:13px;min-height:205px}}
+@media(max-width:560px){.note-fields{grid-template-columns:1fr}.note-hex-grid{gap:7px}.friend-hex .friend-avatar{width:35px;height:35px;flex-basis:35px}}
+@media(max-width:560px){.profile-grid{grid-template-columns:1fr}}
+@media(max-width:360px){nav button{font-size:9px}.group-grid,.library-grid{grid-template-columns:1fr}.friend-hex strong{font-size:11px}}
+</style>
+</head>
+<body>
+<main>
+  <header class="app-header"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 90 90"><g fill="#101010" stroke="#fff" stroke-width="2"><polygon points="45,3 57,10 57,24 45,31 33,24 33,10"/><polygon points="71,18 83,25 83,39 71,46 59,39 59,25"/><polygon points="71,48 83,55 83,69 71,76 59,69 59,55"/><polygon points="45,59 57,66 57,80 45,87 33,80 33,66"/><polygon points="19,48 31,55 31,69 19,76 7,69 7,55"/><polygon points="19,18 31,25 31,39 19,46 7,39 7,25"/><polygon points="45,31 57,38 57,52 45,59 33,52 33,38"/></g></svg></span><div><h1>Ekko</h1><span class="eyebrow">Your space, your pace</span></div><button id="installButton" class="install-button">Install app</button></header>
+  <nav role="tablist" aria-label="Main navigation">
+    <button role="tab" id="t-notes" aria-selected="true" aria-controls="notes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 12h8M8 16h8"/></svg><span>Notes</span></button>
+    <button role="tab" id="t-friends" aria-selected="false" aria-controls="friends"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 9 5 3-5 3z"/></svg><span>Moments</span></button>
+    <button role="tab" id="t-groups" aria-selected="false" aria-controls="groups"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Groups</span></button>
+    <button role="tab" id="t-library" aria-selected="false" aria-controls="library"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5z"/><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20M8 7h8"/></svg><span>Library</span></button>
+    <button role="tab" id="t-log" aria-selected="false" aria-controls="log"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 6-7"/></svg><span>Saved</span></button>
+    <button role="tab" id="t-profile" aria-selected="false" aria-controls="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profile</span></button>
+  </nav>
+  <section id="notes"></section>
+  <section id="log" hidden></section>
+  <section id="friends" hidden></section>
+  <section id="groups" hidden></section>
+  <section id="library" hidden></section>
+  <section id="profile" hidden></section>
+</main>
+<script>
+let S={notes:[],chats:{},groups:[],friends:[]};
+try{S=JSON.parse(localStorage.getItem("echo-v1"))||S}catch(e){}
+S.notes=S.notes||[];
+S.chats=S.chats||{};
+S.groups=S.groups||[];
+S.friends=Array.isArray(S.friends)?S.friends:[];
+function save(){try{localStorage.setItem("echo-v1",JSON.stringify(S));return true}catch(e){alert("Couldn't save on this device. Check available browser storage and try again.");return false}}
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=t=>new Date(t).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+const friendInitial=name=>{const value=(name||"").trim();return value?value.charAt(0).toUpperCase():"A";};
+const buildFriendId=name=>{const base=(name||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||`friend-${Date.now()}`;return base;};
+let activeFriend="",moments=[];
+let activeNoteId=null,recognition=null,recording=false,transcriptBase="";
+const GROUPS=[
+  {id:"study-squad",icon:"✎",category:"Study together",name:"Study squad",description:"Find a little focus, swap study tips, and make finals week feel less solo.",members:"Campus-wide"},
+  {id:"first-years",icon:"⌂",category:"Campus life",name:"First years, figuring it out",description:"A friendly corner for questions, new routines, and your first-semester stories.",members:"New students"},
+  {id:"creative-club",icon:"✳",category:"Make things",name:"Creative club",description:"Share works in progress, meet collaborators, and get inspired between classes.",members:"All majors"},
+  {id:"wellbeing",icon:"♡",category:"Wellbeing",name:"Taking it one day at a time",description:"A thoughtful space for check-ins, encouragement, and finding balance at school.",members:"Student community"}
+];
+const RESOURCES=[
+  {id:"study-reset",icon:"◷",category:"Study",title:"The 25-minute reset",description:"A small, repeatable way to get started when your to-do list feels huge.",detail:"Choose one task, set a 25-minute timer, and put away one distraction. Take a five-minute break when it ends. If starting still feels hard, make the first step smaller: open the document, write one sentence, or gather your notes."},
+  {id:"exam-plan",icon:"▤",category:"Study",title:"Make an exam-week plan",description:"Turn a pile of deadlines into a clear, realistic week.",detail:"Write down each exam and due date. Break revision into short sessions across several days, start with the topics you find hardest, and leave a little buffer for rest or surprises. A workable plan beats a perfect plan you can't follow."},
+  {id:"grounding",icon:"○",category:"Wellbeing",title:"A one-minute grounding break",description:"Pause, notice where you are, and give your mind a moment to settle.",detail:"Let your shoulders drop. Name five things you can see, four things you can feel, three things you can hear, two things you can smell, and one thing you can taste. Go gently; this is an invitation, not a test."},
+  {id:"ask-help",icon:"＋",category:"Campus life",title:"Asking for support is a skill",description:"A few words to make reaching out to a tutor or campus service easier.",detail:"Try: “I'm finding [specific thing] difficult, and I've tried [what you've tried]. Could we talk about what support or next steps might help?” You can also contact your school's student support or wellbeing service for confidential guidance."},
+  {id:"sleep-routine",icon:"☾",category:"Wellbeing",title:"Build a softer wind-down",description:"Make a simple end-of-day routine that works around student life.",detail:"Pick one small cue you can repeat: dimming your screen, laying out tomorrow's notes, or listening to something calming. If your schedule shifts, keep the cue and let the timing be flexible."},
+  {id:"find-people",icon:"⌕",category:"Campus life",title:"Finding your people on campus",description:"Low-pressure ways to meet people who share your interests.",detail:"Try one club meeting, study session, or campus event that genuinely interests you. Set a small goal—stay for 20 minutes or introduce yourself to one person—and remember that it can take a few visits to feel familiar."}
+];
+let libraryCategory="All";
+
+const STOP_WORDS=new Set("about after again against all also although always among an and any are around as at back be because been before being between both but by can could did do does doing down during each few for from further get gets got had has have having he her here hers him his how i if in into is it its just last less like made make many may me might more most much must my need new no nor not now of off on once one only or other our out over own part said same say she should since so some still such take than that the their them then there these they this those through to too under until up us very was we were what when where which while who will with would year you your".split(" "));
+
+function analyzeNote(text){
+  const sentences=text.split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(Boolean);
+  const summary=sentences.slice(0,2).join(" ")||text.slice(0,260);
+  const keyIdeas=sentences.filter(s=>s.length>35).slice(0,5);
+  const actionItems=sentences.filter(s=>/\b(should|must|need to|remember to|next|action item|todo|to-do|submit|review|assignment|deadline|task)\b/i.test(s)).slice(0,5);
+  const frequency={};
+  text.toLowerCase().match(/[a-z][a-z'-]{4,}/g)?.forEach(word=>{if(!STOP_WORDS.has(word))frequency[word]=(frequency[word]||0)+1});
+  const concepts=Object.keys(frequency).sort((a,b)=>frequency[b]-frequency[a]||a.localeCompare(b)).slice(0,6);
+  return{summary,keyIdeas,actionItems,concepts};
+}
+
+function renderAnalysis(analysis){
+  return `<div class="note-output"><h3>Study brief</h3><h4>Quick summary</h4><p>${esc(analysis.summary)}</p>
+    ${analysis.keyIdeas.length?`<h4>Key ideas</h4><ul>${analysis.keyIdeas.map(item=>`<li>${esc(item)}</li>`).join("")}</ul>`:""}
+    ${analysis.concepts.length?`<h4>Topics to revisit</h4><p>${analysis.concepts.map(esc).join(" · ")}</p>`:""}
+    ${analysis.actionItems.length?`<h4>Possible follow-ups</h4><ul>${analysis.actionItems.map(item=>`<li>${esc(item)}</li>`).join("")}</ul>`:""}</div>`;
+}
+
+function renderNotes(){
+  const saved=S.notes.slice().sort((a,b)=>b.updatedAt-a.updatedAt);
+  $("notes").innerHTML=`<section class="notes-hero"><div class="eyebrow">Ekko study studio · AI-ready notes</div><h2>Capture the lecture.<br>Keep the good bits.</h2><p>Dictate or type class notes, then turn the transcript into a clear study brief.</p></section>
+    <section class="note-composer" aria-label="Create study notes"><div class="note-fields"><div><label class="field-label" for="noteTitle">Note title</label><input id="noteTitle" type="text" maxlength="120" placeholder="e.g. Cell biology — week 4"></div><div><label class="field-label" for="noteCourse">Course or class</label><input id="noteCourse" type="text" maxlength="80" placeholder="e.g. BIO 204"></div></div>
+    <div class="transcript-label"><label class="field-label" for="noteTranscript">Lecture transcript & notes</label><button class="record-button" id="recordButton" type="button" aria-pressed="false"><span class="record-dot"></span><span id="recordLabel">Start recording</span></button></div>
+    <textarea id="noteTranscript" placeholder="Tap the mic to dictate, or type your notes here..." aria-describedby="recordStatus"></textarea><p class="record-status" id="recordStatus" aria-live="polite"></p>
+    <div class="note-actions"><button class="primary" id="saveNote">Create study brief</button><button class="secondary-button" id="newNote">New note</button></div>
+    <p class="local-note">Speech recognition depends on browser support and permission, and may process audio through your browser's service. Notes are saved in this browser; study briefs are organized locally, with no external AI model connected.</p></section>
+    <div id="activeAnalysis"></div>
+    <section class="note-history"><h3>Recent notes</h3>${saved.length?saved.slice(0,4).map(note=>`<article class="note-history-card"><div class="row"><div><h4>${esc(note.title||"Untitled class notes")}</h4><p>${esc(note.course||"No course")} · ${fmt(note.updatedAt)}</p></div><button class="secondary-button" data-open-note="${note.id}">Open</button></div></article>`).join(""):`<p class="empty">Your saved study notes will show up here.</p>`}</section>`;
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const recordButton=$("recordButton"),status=$("recordStatus");
+  if(!SpeechRecognition){
+    recordButton.disabled=true;
+    status.textContent="Live speech recognition isn't supported in this browser. You can still type, save, and organize your notes.";
+  }else{
+    recordButton.onclick=()=>{
+      if(recording){recognition.stop();return}
+      recognition=new SpeechRecognition();recognition.continuous=true;recognition.interimResults=true;recognition.lang=navigator.language||"en-US";
+      transcriptBase=$("noteTranscript").value.trim();
+      recognition.onstart=()=>{recording=true;recordButton.setAttribute("aria-pressed","true");$("recordLabel").textContent="Stop recording";status.textContent="Listening… Keep this page open while you speak."};
+      recognition.onresult=event=>{
+        let spoken="";
+        for(let i=0;i<event.results.length;i++)spoken+=event.results[i][0].transcript;
+        $("noteTranscript").value=[transcriptBase,spoken.trim()].filter(Boolean).join(" ");
+      };
+      recognition.onerror=event=>{
+        recording=false;recordButton.setAttribute("aria-pressed","false");$("recordLabel").textContent="Start recording";
+        status.textContent=event.error==="not-allowed"?"Microphone access was denied. Allow microphone access in your browser settings, then try again.":`Speech recognition error: ${event.error}. You can continue by typing your notes.`;
+      };
+      recognition.onend=()=>{
+        recording=false;recordButton.setAttribute("aria-pressed","false");$("recordLabel").textContent="Start recording";
+        if(status.textContent==="Listening… Keep this page open while you speak.")status.textContent="Transcription paused. Review and edit your notes before saving.";
+      };
+      status.textContent="Requesting microphone access…";
+      try{recognition.start()}catch(error){status.textContent=`Couldn't start speech recognition: ${error.message}. You can type your notes instead.`}
+    };
+  }
+  $("newNote").onclick=()=>{if(recording)recognition.stop();activeNoteId=null;renderNotes()};
+  $("saveNote").onclick=()=>{
+    if(recording){status.textContent="Stop recording before creating your study brief.";return}
+    const text=$("noteTranscript").value.trim();
+    if(!text){$("noteTranscript").focus();status.textContent="Add or dictate some notes before creating a study brief.";return}
+    const now=Date.now(),existing=S.notes.find(note=>note.id===activeNoteId),analysis=analyzeNote(text);
+    const note={id:existing?existing.id:String(now),title:$("noteTitle").value.trim(),course:$("noteCourse").value.trim(),text,analysis,createdAt:existing?existing.createdAt:now,updatedAt:now};
+    if(existing)S.notes=S.notes.map(item=>item.id===existing.id?note:item);else S.notes.unshift(note);
+    activeNoteId=note.id;if(!save())return;renderNotes();
+    $("noteTitle").value=note.title;$("noteCourse").value=note.course;$("noteTranscript").value=note.text;
+    $("activeAnalysis").innerHTML=renderAnalysis(analysis);renderLog();
+  };
+  document.querySelectorAll("[data-open-note]").forEach(button=>button.onclick=()=>{
+    const note=S.notes.find(item=>item.id===button.dataset.openNote);
+    if(!note)return;
+    activeNoteId=note.id;switchTab("t-notes");renderNotes();
+    $("noteTitle").value=note.title||"";$("noteCourse").value=note.course||"";$("noteTranscript").value=note.text||"";
+    $("activeAnalysis").innerHTML=note.analysis?renderAnalysis(note.analysis):"";
+  });
+}
+
+function renderLog(){
+  const notes=S.notes.slice().sort((a,b)=>b.updatedAt-a.updatedAt);
+  $("log").innerHTML=`<div class="page-intro"><div class="eyebrow">Your study desk</div><h2>Saved notes</h2><p>Your lecture notes and study briefs, all in one place.</p></div>${notes.length?notes.map(note=>`<article class="item"><div class="row"><div><strong>${esc(note.title||"Untitled class notes")}</strong><div class="meta">${esc(note.course||"No course")} · ${fmt(note.updatedAt)}</div></div><div class="row"><button class="secondary-button" data-edit-note="${note.id}">Edit</button><button class="ghost" data-delete-note="${note.id}">Delete</button></div></div><p>${esc(note.analysis?.summary||note.text.slice(0,180))}</p></article>`).join(""):`<p class="empty">Your saved notes will appear here after you create a study brief.</p>`}`;
+  document.querySelectorAll("[data-edit-note]").forEach(b=>b.onclick=()=>{
+    const note=S.notes.find(item=>item.id===b.dataset.editNote);
+    if(!note)return;
+    activeNoteId=note.id;switchTab("t-notes");renderNotes();
+    $("noteTitle").value=note.title||"";$("noteCourse").value=note.course||"";$("noteTranscript").value=note.text||"";
+    $("activeAnalysis").innerHTML=note.analysis?renderAnalysis(note.analysis):"";
+  });
+  document.querySelectorAll("[data-delete-note]").forEach(b=>b.onclick=()=>{
+    S.notes=S.notes.filter(note=>note.id!==b.dataset.deleteNote);
+    if(activeNoteId===b.dataset.deleteNote)activeNoteId=null;
+    save();renderLog();
+  });
+}
+
+function renderFriends(){
+  const friends=Array.isArray(S.friends)?S.friends:[];
+  const chosen=friends.find(f=>f.id===activeFriend)||friends[0]||null;
+  const feed=moments.map(m=>`<article class="video-card"><video controls playsinline src="${m.url}"></video><div class="video-caption">Your moment · just now</div></article>`).join("");
+  const list=friends.length?friends.map(f=>`<button class="friend-choice" data-friend="${f.id}" aria-pressed="${chosen&&f.id===chosen.id}"><span class="friend-avatar">${friendInitial(f.name)}</span><span>${esc(f.name)}<small>online now</small></span></button>`).join(""):`<p class="friend-empty">No friends added yet.</p>`;
+  const messages=chosen ? (S.chats[chosen.id]||[]) : [];
+  $("friends").innerHTML=`<div class="friends-head"><div><div class="eyebrow">Your inner circle</div><h2>Good times, on repeat.</h2></div><span aria-hidden="true">✨</span></div>
+    <form class="friend-form" id="friendForm"><input id="friendName" type="text" maxlength="40" placeholder="Add a friend name" aria-label="Add a friend name"><button class="primary" type="submit">Add friend</button></form>
+    <div class="stories" aria-label="Friends' stories"><div class="story add"><div class="story-ring"><span>＋</span></div>Your story</div>${friends.map(f=>`<div class="story"><div class="story-ring"><span>${friendInitial(f.name)}</span></div>${esc(f.name)}</div>`).join("")}</div>
+    <div class="upload-card"><h2 class="section-title">Drop a little moment</h2><div class="upload-drop"><div><strong>Got a video to share?</strong><p>Pick a clip and preview it in your moments.</p><label class="upload-button" for="videoUpload">＋ Add a video</label><input id="videoUpload" type="file" accept="video/*" hidden></div></div><p class="privacy-note">Local preview only — videos aren't uploaded or shared with friends yet.</p></div>
+    <h2 class="section-title">Your moments</h2>${feed?`<div class="video-feed">${feed}</div>`:`<p class="empty">Your video moments will show up here.</p>`}
+    <div class="chat-card"><div class="friends-head"><div><div class="eyebrow">Say hey</div><h2>Chats</h2></div><span class="privacy-note">Just on this device</span></div>${chosen?`<div class="chat-layout"><div class="friend-list" aria-label="Choose a friend">${list}</div>
+    <div class="chat-window"><div class="chat-title">${friendInitial(chosen.name)} ${esc(chosen.name)}</div><div class="chat-messages" id="chatMessages" aria-live="polite">${messages.map(m=>`<div class="chat-bubble${m.mine?" mine":""}">${esc(m.text)}<span class="chat-time">${m.mine?"You":"Friend"}</span></div>`).join("")}</div>
+    <form class="chat-compose" id="chatForm"><input type="text" id="chatInput" maxlength="500" aria-label="Message ${esc(chosen.name)}" placeholder="Send a message..." autocomplete="off"><button class="send-button" type="submit" aria-label="Send message">➤</button></form></div></div>`:`<p class="empty">Add a friend first to start a local chat.</p>`}</div>`;
+  document.querySelectorAll("[data-friend]").forEach(b=>b.onclick=()=>{activeFriend=b.dataset.friend;renderFriends()});
+  $("friendForm")?.addEventListener("submit",event=>{
+    event.preventDefault();
+    const input=$("friendName");
+    const name=input.value.trim();
+    if(!name)return;
+    const id=buildFriendId(name);
+    if(!friends.some(f=>f.id===id)){
+      S.friends.push({id,name,emoji:friendInitial(name)});
+      activeFriend=id;
+      save();
+    }
+    renderFriends();
+  });
+  $("videoUpload").onchange=event=>{
+    const file=event.target.files[0];
+    if(!file)return;
+    if(!file.type.startsWith("video/")){alert("Choose a video file to add a moment.");return}
+    moments.unshift({url:URL.createObjectURL(file)});
+    renderFriends();
+  };
+  $("chatForm")?.addEventListener("submit",event=>{
+    event.preventDefault();
+    const input=$("chatInput"),text=input.value.trim();
+    if(!text||!chosen)return;
+    (S.chats[chosen.id]||(S.chats[chosen.id]=[])).push({text,mine:true});
+    save();renderFriends();
+    $("chatInput").focus();
+  });
+}
+
+function renderGroups(){
+  const friends=Array.isArray(S.friends)?S.friends:[];
+  $("groups").innerHTML=`<div class="page-intro"><div class="eyebrow">Find your people</div><h2>Student groups</h2><p>Spaces for studying, campus life, and everything in between.</p></div>
+    <section aria-label="Your friends"><div class="eyebrow">Your hexagon · tap a friend to chat</div>${friends.length?`<div class="note-hex-grid">${friends.map(f=>`<button type="button" class="friend-hex" data-chat-friend="${f.id}" aria-label="Open chat with ${f.name}"><span class="friend-avatar" aria-hidden="true">${friendInitial(f.name)}</span><strong>${esc(f.name)}</strong><span>Open chat ↗</span></button>`).join("")}</div>`:`<p class="empty">Add friends in the Moments tab to start building your hexagon.</p>`}</section>
+    <div class="group-grid">${GROUPS.map(g=>{const joined=S.groups.includes(g.id);return `<article class="group-card"><span class="card-icon" aria-hidden="true">${g.icon}</span><span class="card-category">${g.category}</span><h3>${g.name}</h3><p>${g.description}</p><div class="group-count">${g.members}</div><button class="primary join-button${joined?" joined":""}" data-group="${g.id}" aria-pressed="${joined}">${joined?"Joined ✓":"Join group"}</button></article>`}).join("")}</div>
+    <p class="local-note">Group previews are shown locally. Group membership and conversations need a connected student community to be shared.</p>`;
+  document.querySelectorAll("[data-group]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.group;
+    S.groups=S.groups.includes(id)?S.groups.filter(group=>group!==id):[...S.groups,id];
+    save();renderGroups();
+  });
+  document.querySelectorAll("[data-chat-friend]").forEach(b=>b.onclick=()=>{
+    activeFriend=b.dataset.chatFriend;
+    switchTab("t-friends");
+    const chat=$("chatForm");
+    if(chat)chat.scrollIntoView({behavior:"smooth",block:"center"});
+    const input=$("chatInput");
+    if(input)input.focus({preventScroll:true});
+  });
+}
+
+function renderLibrary(){
+  const categories=["All","Study","Wellbeing","Campus life"];
+  $("library").innerHTML=`<div class="page-intro"><div class="eyebrow">A little help, when you need it</div><h2>Student library</h2><p>Short, practical guides for study, wellbeing, and campus life.</p></div>
+    <div class="library-search"><input type="search" id="librarySearch" placeholder="Search guides..." aria-label="Search library guides"></div>
+    <div class="filter-row" aria-label="Filter guides by category">${categories.map(c=>`<button class="filter-chip" data-category="${c}" aria-pressed="${libraryCategory===c}">${c}</button>`).join("")}</div>
+    <div class="library-grid">${RESOURCES.map(r=>`<article class="resource-card" data-resource-card data-search="${(r.title+" "+r.category+" "+r.description).toLowerCase()}"><span class="card-icon" aria-hidden="true">${r.icon}</span><span class="card-category">${r.category}</span><h3>${r.title}</h3><p>${r.description}</p><button class="primary" data-guide="${r.id}" aria-expanded="false">Read guide</button><p id="guide-${r.id}" hidden>${r.detail}</p></article>`).join("")}</div>
+    <p class="local-note">These general guides are for everyday support, not a substitute for professional or campus-specific advice.</p>`;
+  const applyFilters=()=>{
+    const query=$("librarySearch").value.trim().toLowerCase();
+    document.querySelectorAll("[data-resource-card]").forEach(card=>{
+      const guide=RESOURCES.find(r=>r.id===card.querySelector("[data-guide]").dataset.guide);
+      card.hidden=!(libraryCategory==="All"||guide.category===libraryCategory)||!card.dataset.search.includes(query);
+    });
+  };
+  $("librarySearch").oninput=applyFilters;
+  document.querySelectorAll("[data-category]").forEach(b=>b.onclick=()=>{libraryCategory=b.dataset.category;renderLibrary()});
+  document.querySelectorAll("[data-guide]").forEach(b=>b.onclick=()=>{
+    const detail=$("guide-"+b.dataset.guide),expanded=b.getAttribute("aria-expanded")==="true";
+    detail.hidden=expanded;b.setAttribute("aria-expanded",String(!expanded));b.textContent=expanded?"Read guide":"Close guide";
+  });
+}
+
+const tabs={"t-notes":"notes","t-friends":"friends","t-groups":"groups","t-library":"library","t-log":"log","t-profile":"profile"};
+function switchTab(id){
+  Object.keys(tabs).forEach(k=>{$(k).setAttribute("aria-selected",k===id);$(tabs[k]).hidden=k!==id});
+  if(id==="t-notes")renderNotes();if(id==="t-log")renderLog();if(id==="t-friends")renderFriends();if(id==="t-groups")renderGroups();if(id==="t-library")renderLibrary();
+  if(id==="t-profile"){
+    if(window.renderProfile)window.renderProfile();
+    else $("profile").innerHTML=`<p class="empty">Loading your account tools…</p>`;
+  }
+}
+Object.keys(tabs).forEach(id=>$(id).onclick=()=>switchTab(id));
+let deferredPrompt=null;
+const installButton=$("installButton");
+window.addEventListener("beforeinstallprompt",event=>{
+  event.preventDefault();
+  deferredPrompt=event;
+  if(installButton)installButton.hidden=false;
+});
+if(installButton){installButton.onclick=async()=>{
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt=null;
+    installButton.hidden=true;
+    return;
+  }
+  alert(/iPhone|iPad|iPod/.test(navigator.userAgent)
+    ? "To install Ekko, tap Share in Safari, then choose Add to Home Screen."
+    : "To install Ekko, open your browser menu and choose Install app or Add to Home screen.");
+};}
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(error=>console.error("Ekko offline support could not be enabled.",error)));
+}
+renderNotes();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="social.js"></script>
+</body>
+</html>
